@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Supervision des agents de réplication SQL Server."
+    />
+    <title>Supervision | Replicon</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      .monitoring-header {
+        padding: 34px 0 25px;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .monitoring-header h1 {
+        margin-top: 7px;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+        font-size: 37px;
+        letter-spacing: -1.5px;
+      }
+
+      .monitoring-header p:last-child {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .monitoring-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .agent-grid {
+        margin-bottom: 18px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 17px;
+      }
+
+      .agent-card {
+        padding: 19px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: white;
+        transition: 0.25s ease;
+      }
+
+      .agent-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow);
+      }
+
+      .agent-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .agent-card-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        font-size: 16px;
+      }
+
+      .snapshot .agent-card-icon {
+        color: var(--blue);
+        background: var(--blue-light);
+      }
+
+      .log-reader .agent-card-icon {
+        color: var(--green);
+        background: var(--green-light);
+      }
+
+      .distribution .agent-card-icon {
+        color: var(--orange);
+        background: var(--orange-light);
+      }
+
+      .agent-card h2 {
+        margin-top: 17px;
+        color: var(--navy);
+        font-size: 15px;
+      }
+
+      .agent-card p {
+        margin-top: 5px;
+        color: #8b98aa;
+        font-size: 10px;
+      }
+
+      .agent-bottom {
+        margin-top: 16px;
+        padding-top: 13px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .agent-bottom small {
+        color: #8491a4;
+        font-size: 9px;
+      }
+
+      .agent-bottom strong {
+        color: #45556e;
+        font-size: 10px;
+      }
+
+      .monitoring-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.8fr);
+        gap: 18px;
+      }
+
+      .latency-panel {
+        min-height: 345px;
+      }
+
+      .latency-chart {
+        height: 235px;
+        padding: 10px 22px 18px;
+        display: flex;
+        align-items: end;
+        gap: 15px;
+      }
+
+      .bar-group {
+        height: 100%;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: end;
+        gap: 8px;
+      }
+
+      .bar {
+        width: 100%;
+        max-width: 30px;
+        min-height: 13px;
+        border-radius: 7px 7px 3px 3px;
+        background: linear-gradient(to top, #2e7fe8, #70b5ff);
+        box-shadow: 0 6px 12px rgba(46, 127, 232, 0.15);
+      }
+
+      .bar-group:nth-child(2) .bar,
+      .bar-group:nth-child(6) .bar {
+        background: linear-gradient(to top, #dd962a, #f3c36b);
+      }
+
+      .bar-group span {
+        color: #97a3b5;
+        font-size: 9px;
+      }
+
+      .queue-panel {
+        min-height: 345px;
+      }
+
+      .queue-content {
+        padding: 8px 21px 20px;
+      }
+
+      .queue-number {
+        color: var(--navy);
+        font-size: 37px;
+        letter-spacing: -2px;
+      }
+
+      .queue-number span {
+        color: #8290a4;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0;
+      }
+
+      .queue-content > p {
+        margin-top: 5px;
+        color: #8d99aa;
+        font-size: 10px;
+      }
+
+      .queue-progress {
+        height: 9px;
+        margin: 22px 0 8px;
+        overflow: hidden;
+        border-radius: 30px;
+        background: #edf1f6;
+      }
+
+      .queue-progress div {
+        width: 72%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #e5a236, #f3c66e);
+      }
+
+      .queue-meta {
+        display: flex;
+        justify-content: space-between;
+        color: #8b97aa;
+        font-size: 9px;
+      }
+
+      .queue-meta strong {
+        color: #9c6d2a;
+      }
+
+      .queue-list {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid var(--line);
+      }
+
+      .queue-row {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .queue-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .queue-row div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .queue-row i {
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        color: #5d94df;
+        border-radius: 7px;
+        background: var(--blue-light);
+        font-size: 10px;
+      }
+
+      .queue-row span {
+        color: #718098;
+        font-size: 10px;
+      }
+
+      .queue-row strong {
+        color: #41516a;
+        font-size: 10px;
+      }
+
+      .status-panel {
+        margin-top: 18px;
+        overflow: hidden;
+      }
+
+      .status-table td:first-child {
+        min-width: 190px;
+      }
+
+      .agent-name {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .agent-name i {
+        width: 29px;
+        height: 29px;
+        display: grid;
+        place-items: center;
+        color: #448fed;
+        border-radius: 8px;
+        background: var(--blue-light);
+        font-size: 11px;
+      }
+
+      .agent-name strong,
+      .agent-name small {
+        display: block;
+      }
+
+      .agent-name strong {
+        color: #41516a;
+        font-size: 10px;
+      }
+
+      .agent-name small {
+        margin-top: 3px;
+        color: #99a5b7;
+        font-size: 9px;
+      }
+
+      .restart-button {
+        height: 30px;
+        padding: 0 10px;
+        color: var(--blue);
+        border-radius: 8px;
+        background: var(--blue-light);
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .restart-button:hover {
+        color: white;
+        background: var(--blue);
+      }
+
+      @media (max-width: 1100px) {
+        .agent-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .monitoring-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .monitoring-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .monitoring-actions {
+          width: 100%;
+        }
+
+        .monitoring-actions button {
+          flex: 1;
+        }
+
+        .latency-chart {
+          gap: 8px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">
+            <i class="fa-solid fa-database"></i>
+          </span>
+
+          <span>
+            <strong>Replicon</strong>
+            <small>Control Center</small>
+          </span>
+        </a>
+
+        <nav class="main-nav">
+          <p class="nav-label">Espace de travail</p>
+
+          <a class="nav-link" href="index.html">
+            <i class="fa-solid fa-grid-2"></i>
+            Tableau de bord
+          </a>
+
+          <a class="nav-link" href="sites.html">
+            <i class="fa-solid fa-earth-americas"></i>
+            Sites
+          </a>
+
+          <a class="nav-link active" href="monitoring.html">
+            <i class="fa-solid fa-chart-line"></i>
+            Supervision
+          </a>
+
+          <a class="nav-link" href="deployments.html">
+            <i class="fa-solid fa-rocket"></i>
+            Déploiements
+          </a>
+
+          <p class="nav-label">Administration</p>
+
+          <a class="nav-link" href="alerts.html">
+            <i class="fa-solid fa-bell"></i>
+            Alertes
+            <span class="nav-count">3</span>
+          </a>
+
+          <a class="nav-link" href="reports.html">
+            <i class="fa-solid fa-file-lines"></i>
+            Rapports
+          </a>
+
+          <a class="nav-link" href="settings.html">
+            <i class="fa-solid fa-sliders"></i>
+            Paramètres
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="support-card">
+            <span class="support-icon">
+              <i class="fa-regular fa-circle-question"></i>
+            </span>
+
+            <p>Besoin d'assistance ?</p>
+            <a href="#">Consulter le runbook</a>
+          </div>
+
+          <div class="user-card">
+            <div class="avatar">HA</div>
+
+            <div>
+              <strong>Houda Abdessamad</strong>
+              <span>Administratrice DBA</span>
+            </div>
+
+            <button class="icon-button">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="menu-button">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <div class="breadcrumb">
+            <span>DBLINK</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <strong>Supervision</strong>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="icon-button notification-button">
+              <i class="fa-regular fa-bell"></i>
+              <span></span>
+            </button>
+
+            <button class="icon-button">
+              <i class="fa-regular fa-circle-question"></i>
+            </button>
+
+            <button class="profile-button">
+              <span class="avatar">HA</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="monitoring-header">
+          <div>
+            <p class="eyebrow">
+              <span></span>
+              Monitoring en temps réel
+            </p>
+
+            <h1>Supervision</h1>
+
+            <p>
+              Suivez l'état des agents, la latence et les files de
+              transactions de chaque site.
+            </p>
+          </div>
+
+          <div class="monitoring-actions">
+            <button class="secondary-button">
+              <i class="fa-regular fa-clock"></i>
+              Actualisé à 10:42
+            </button>
+
+            <button class="primary-button">
+              <i class="fa-solid fa-rotate"></i>
+              Actualiser
+            </button>
+          </div>
+        </section>
+
+        <section class="agent-grid">
+          <article class="agent-card snapshot">
+            <div class="agent-card-top">
+              <span class="agent-card-icon">
+                <i class="fa-solid fa-camera"></i>
+              </span>
+
+              <span class="status-badge healthy">
+                <i></i>
+                Running
+              </span>
+            </div>
+
+            <h2>Snapshot Agent</h2>
+            <p>Génère les fichiers de schéma et de données initiaux.</p>
+
+            <div class="agent-bottom">
+              <small>Dernière exécution</small>
+              <strong>Aujourd'hui, 08:10</strong>
+            </div>
+          </article>
+
+          <article class="agent-card log-reader">
+            <div class="agent-card-top">
+              <span class="agent-card-icon">
+                <i class="fa-solid fa-book-open-reader"></i>
+              </span>
+
+              <span class="status-badge healthy">
+                <i></i>
+                Running
+              </span>
+            </div>
+
+            <h2>Log Reader Agent</h2>
+            <p>Lit les transactions validées dans le journal SQL Server.</p>
+
+            <div class="agent-bottom">
+              <small>Transactions lues</small>
+              <strong>12 486 aujourd'hui</strong>
+            </div>
+          </article>
+
+          <article class="agent-card distribution">
+            <div class="agent-card-top">
+              <span class="agent-card-icon">
+                <i class="fa-solid fa-share-nodes"></i>
+              </span>
+
+              <span class="status-badge warning">
+                <i></i>
+                Retard détecté
+              </span>
+            </div>
+
+            <h2>Distribution Agent</h2>
+            <p>Applique les commandes de réplication dans FactoryDW.</p>
+
+            <div class="agent-bottom">
+              <small>Commandes en attente</small>
+              <strong>1 843 commandes</strong>
+            </div>
+          </article>
+        </section>
+
+        <section class="monitoring-grid">
+          <article class="panel latency-panel">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">24 dernières heures</p>
+                <h2>Latence moyenne par site</h2>
+              </div>
+
+              <button class="select-button">
+                Aujourd'hui
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+
+            <div class="latency-chart">
+              <div class="bar-group">
+                <div class="bar" style="height: 35%;"></div>
+                <span>FR01</span>
+              </div>
+
+              <div class="bar-group">
+                <div class="bar" style="height: 72%;"></div>
+                <span>BR01</span>
+              </div>
+
+              <div class="bar-group">
+                <div class="bar" style="height: 45%;"></div>
+                <span>US01</span>
+              </div>
+
+              <div class="bar-group">
+                <div class="bar" style="height: 30%;"></div>
+                <span>MA01</span>
+              </div>
+
+              <div class="bar-group">
+                <div class="bar" style="height: 42%;"></div>
+                <span>DE01</span>
+              </div>
+
+              <div class="bar-group">
+                <div class="bar" style="height: 58%;"></div>
+                <span>MX01</span>
+              </div>
+
+              <div class="bar-group">
+                <div class="bar" style="height: 27%;"></div>
+                <span>ES01</span>
+              </div>
+
+              <div class="bar-group">
+                <div class="bar" style="height: 36%;"></div>
+                <span>IT01</span>
+              </div>
+
+              <div class="bar-group">
+                <div class="bar" style="height: 48%;"></div>
+                <span>SE01</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel queue-panel">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">Distribution</p>
+                <h2>File d'attente</h2>
+              </div>
+
+              <button class="icon-button">
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+            </div>
+
+            <div class="queue-content">
+              <h3 class="queue-number">1 843 <span>commandes</span></h3>
+
+              <p>Commandes en attente de livraison vers les Subscribers.</p>
+
+              <div class="queue-progress">
+                <div></div>
+              </div>
+
+              <div class="queue-meta">
+                <span>Seuil d'alerte : 2 500</span>
+                <strong>72 % du seuil</strong>
+              </div>
+
+              <div class="queue-list">
+                <div class="queue-row">
+                  <div>
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>BR01</span>
+                  </div>
+                  <strong>1 113</strong>
+                </div>
+
+                <div class="queue-row">
+                  <div>
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>MX01</span>
+                  </div>
+                  <strong>452</strong>
+                </div>
+
+                <div class="queue-row">
+                  <div>
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>SE01</span>
+                  </div>
+                  <strong>278</strong>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel status-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">État détaillé</p>
+              <h2>Historique des agents</h2>
+            </div>
+
+            <button class="text-button">
+              Voir l'historique complet
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>Site</th>
+                  <th>Dernier résultat</th>
+                  <th>Dernière synchronisation</th>
+                  <th>État</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="agent-name">
+                      <i class="fa-solid fa-book-open-reader"></i>
+
+                      <div>
+                        <strong>Log Reader Agent</strong>
+                        <small>Lecture des transactions source</small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td><code>FR01MESSQL01</code></td>
+                  <td><strong>12 486 commandes lues</strong></td>
+                  <td><strong>Il y a 8 sec.</strong></td>
+                  <td>
+                    <span class="status-badge healthy">
+                      <i></i>
+                      Running
+                    </span>
+                  </td>
+
+                  <td>
+                    <button class="restart-button">
+                      <i class="fa-solid fa-rotate"></i>
+                      Relancer
+                    </button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="agent-name">
+                      <i class="fa-solid fa-share-nodes"></i>
+
+                      <div>
+                        <strong>Distribution Agent</strong>
+                        <small>Livraison vers FactoryDW</small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td><code>BR01MESSQL01</code></td>
+                  <td><strong>1 113 commandes en attente</strong></td>
+                  <td><strong>Il y a 3 min.</strong></td>
+                  <td>
+                    <span class="status-badge warning">
+                      <i></i>
+                      Retard
+                    </span>
+                  </td>
+
+                  <td>
+                    <button class="restart-button">
+                      <i class="fa-solid fa-rotate"></i>
+                      Relancer
+                    </button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="agent-name">
+                      <i class="fa-solid fa-camera"></i>
+
+                      <div>
+                        <strong>Snapshot Agent</strong>
+                        <small>Initialisation des articles</small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td><code>US01MESSQL01</code></td>
+                  <td><strong>Snapshot appliqué avec succès</strong></td>
+                  <td><strong>Aujourd'hui, 08:10</strong></td>
+                  <td>
+                    <span class="status-badge healthy">
+                      <i></i>
+                      Conforme
+                    </span>
+                  </td>
+
+                  <td>
+                    <button class="restart-button">
+                      <i class="fa-solid fa-rotate"></i>
+                      Relancer
+                    </button>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="agent-name">
+                      <i class="fa-solid fa-share-nodes"></i>
+
+                      <div>
+                        <strong>Distribution Agent</strong>
+                        <small>Livraison vers FactoryDW</small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td><code>DE01MESSQL01</code></td>
+                  <td><strong>Échec de connexion au Subscriber</strong></td>
+                  <td><strong>Il y a 1 min.</strong></td>
+                  <td>
+                    <span class="status-badge error">
+                      <i></i>
+                      Incident
+                    </span>
+                  </td>
+
+                  <td>
+                    <button class="restart-button">
+                      <i class="fa-solid fa-rotate"></i>
+                      Relancer
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+<style>
+  .latency-panel,
+  .queue-panel {
+    min-height: 150px;
+  }
+
+  .agent-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .agent-grid .agent-card {
+  width: 100%;
+  max-width: none;
+  grid-column: 1 / -1;
+  box-sizing: border-box;
+}
+  
+  .nav-count[hidden] {
+  display: none !important;
+}
+.monitoring-header,
+.agent-grid,
+.monitoring-grid,
+.status-panel {
+  width: 100%;
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.agent-grid {
+  grid-template-columns: minmax(0, 1fr);
+  margin-bottom: 18px;
+}
+
+.agent-grid .agent-card {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding: 26px;
+}
+
+.agent-grid .agent-card p,
+.monitoring-grid .panel p,
+.status-panel p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.monitoring-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 18px;
+}
+
+.monitoring-grid .panel {
+  min-width: 0;
+  min-height: 190px;
+  padding: 26px;
+  box-sizing: border-box;
+}
+
+.status-panel {
+  margin-top: 18px;
+  min-height: 150px;
+  padding: 26px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 800px) {
+  .monitoring-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+  </style>
+<script src="monitoring.js?v=2"></script>
+<script src="monitoring-live.js?v=3"></script>
+</body>
+          

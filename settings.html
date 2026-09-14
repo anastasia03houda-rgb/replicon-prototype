@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Paramètres de l'application Replicon."
+    />
+    <title>Paramètres | Replicon</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      .settings-header {
+        padding: 34px 0 25px;
+      }
+
+      .settings-header h1 {
+        margin-top: 7px;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+        font-size: 37px;
+        letter-spacing: -1.5px;
+      }
+
+      .settings-header p:last-child {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .settings-layout {
+        display: grid;
+        grid-template-columns: 215px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .settings-menu {
+        padding: 10px;
+      }
+
+      .settings-menu-title {
+        margin: 8px 8px 11px;
+        color: #8c99ac;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .settings-tab {
+        width: 100%;
+        min-height: 40px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #65738a;
+        border-radius: 9px;
+        background: transparent;
+        font-size: 10px;
+        font-weight: 600;
+        text-align: left;
+      }
+
+      .settings-tab i {
+        width: 16px;
+        color: #8c99ad;
+        text-align: center;
+      }
+
+      .settings-tab:hover,
+      .settings-tab.active-tab {
+        color: var(--blue);
+        background: var(--blue-light);
+      }
+
+      .settings-tab.active-tab i {
+        color: var(--blue);
+      }
+
+      .setting-content {
+        overflow: hidden;
+      }
+
+      .setting-content-header {
+        padding: 21px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .setting-content-header h2 {
+        margin-top: 5px;
+        color: var(--navy);
+        font-size: 17px;
+      }
+
+      .setting-section {
+        padding: 21px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .setting-section:last-child {
+        border-bottom: 0;
+      }
+
+      .setting-section h3 {
+        color: #405068;
+        font-size: 12px;
+      }
+
+      .setting-section > p {
+        margin-top: 5px;
+        color: #8b98aa;
+        font-size: 10px;
+        line-height: 1.55;
+      }
+
+      .form-grid {
+        margin-top: 17px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .form-group.full {
+        grid-column: 1 / -1;
+      }
+
+      .form-group label {
+        color: #718097;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        height: 39px;
+        padding: 0 11px;
+        outline: none;
+        color: #4c5c75;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfe;
+        font-family: inherit;
+        font-size: 10px;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        border-color: #9fcaff;
+        background: white;
+      }
+
+      .toggle-row {
+        padding: 15px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .toggle-row:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
+      }
+
+      .toggle-text strong,
+      .toggle-text small {
+        display: block;
+      }
+
+      .toggle-text strong {
+        color: #46566f;
+        font-size: 10px;
+      }
+
+      .toggle-text small {
+        margin-top: 4px;
+        color: #98a4b5;
+        font-size: 9px;
+      }
+
+      .toggle-switch {
+        width: 36px;
+        height: 20px;
+        padding: 3px;
+        display: flex;
+        justify-content: flex-end;
+        flex-shrink: 0;
+        border-radius: 30px;
+        background: var(--green);
+      }
+
+      .toggle-switch.disabled {
+        justify-content: flex-start;
+        background: #ccd5e1;
+      }
+
+      .toggle-switch span {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: white;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+      }
+
+      .connection-card {
+        margin-top: 17px;
+        padding: 14px;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        border: 1px solid #d3efe2;
+        border-radius: 10px;
+        background: #f4fcf8;
+      }
+
+      .connection-card i {
+        width: 31px;
+        height: 31px;
+        display: grid;
+        place-items: center;
+        color: var(--green);
+        border-radius: 8px;
+        background: #ddf8ea;
+      }
+
+      .connection-card strong,
+      .connection-card small {
+        display: block;
+      }
+
+      .connection-card strong {
+        color: #287a59;
+        font-size: 10px;
+      }
+
+      .connection-card small {
+        margin-top: 3px;
+        color: #6a9c87;
+        font-size: 9px;
+      }
+
+      .connection-card button {
+        margin-left: auto;
+      }
+
+      .setting-actions {
+        padding: 16px 21px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        background: #fbfcfe;
+      }
+
+      .danger-zone {
+        margin-top: 18px;
+        overflow: hidden;
+      }
+
+      .danger-zone .setting-content-header h2 {
+        color: #c34654;
+      }
+
+      .danger-action {
+        height: 34px;
+        padding: 0 11px;
+        color: #d54756;
+        border: 1px solid #f6c7cc;
+        border-radius: 8px;
+        background: #fff7f8;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      @media (max-width: 850px) {
+        .settings-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .settings-menu {
+          display: flex;
+          overflow-x: auto;
+          gap: 5px;
+        }
+
+        .settings-menu-title {
+          display: none;
+        }
+
+        .settings-tab {
+          width: auto;
+          min-width: max-content;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .form-group.full {
+          grid-column: auto;
+        }
+
+        .setting-content-header,
+        .setting-actions {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .setting-actions button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">
+            <i class="fa-solid fa-database"></i>
+          </span>
+
+          <span>
+            <strong>Replicon</strong>
+            <small>Control Center</small>
+          </span>
+        </a>
+
+        <nav class="main-nav">
+          <p class="nav-label">Espace de travail</p>
+
+          <a class="nav-link" href="index.html">
+            <i class="fa-solid fa-grid-2"></i>
+            Tableau de bord
+          </a>
+
+          <a class="nav-link" href="sites.html">
+            <i class="fa-solid fa-earth-americas"></i>
+            Sites
+          </a>
+
+          <a class="nav-link" href="monitoring.html">
+            <i class="fa-solid fa-chart-line"></i>
+            Supervision
+          </a>
+
+          <a class="nav-link" href="deployments.html">
+            <i class="fa-solid fa-rocket"></i>
+            Déploiements
+          </a>
+
+          <p class="nav-label">Administration</p>
+
+          <a class="nav-link" href="alerts.html">
+            <i class="fa-solid fa-bell"></i>
+            Alertes
+            <span class="nav-count">3</span>
+          </a>
+
+          <a class="nav-link" href="reports.html">
+            <i class="fa-solid fa-file-lines"></i>
+            Rapports
+          </a>
+
+          <a class="nav-link active" href="settings.html">
+            <i class="fa-solid fa-sliders"></i>
+            Paramètres
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="support-card">
+            <span class="support-icon">
+              <i class="fa-regular fa-circle-question"></i>
+            </span>
+
+            <p>Besoin d'assistance ?</p>
+            <a href="#">Consulter le runbook</a>
+          </div>
+
+          <div class="user-card">
+            <div class="avatar">HA</div>
+
+            <div>
+              <strong>Houda Abdessamad</strong>
+              <span>Administratrice DBA</span>
+            </div>
+
+            <button class="icon-button">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="menu-button">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <div class="breadcrumb">
+            <span>DBLINK</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <strong>Paramètres</strong>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="icon-button notification-button">
+              <i class="fa-regular fa-bell"></i>
+              <span></span>
+            </button>
+
+            <button class="icon-button">
+              <i class="fa-regular fa-circle-question"></i>
+            </button>
+
+            <button class="profile-button">
+              <span class="avatar">HA</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="settings-header">
+          <p class="eyebrow">
+            <span></span>
+            Configuration de l'application
+          </p>
+
+          <h1>Paramètres</h1>
+
+          <p>
+            Gérez votre profil, les notifications et les paramètres de
+            supervision de Replicon.
+          </p>
+        </section>
+
+        <section class="settings-layout">
+          <aside class="panel settings-menu">
+            <p class="settings-menu-title">Préférences</p>
+
+            <button class="settings-tab active-tab">
+              <i class="fa-regular fa-user"></i>
+              Mon profil
+            </button>
+
+            <button class="settings-tab">
+              <i class="fa-regular fa-bell"></i>
+              Notifications
+            </button>
+
+            <button class="settings-tab">
+              <i class="fa-solid fa-server"></i>
+              Réplication
+            </button>
+
+            <button class="settings-tab">
+              <i class="fa-solid fa-shield-halved"></i>
+              Sécurité
+            </button>
+
+            <button class="settings-tab">
+              <i class="fa-solid fa-palette"></i>
+              Apparence
+            </button>
+          </aside>
+
+          <div>
+            <section class="panel setting-content">
+              <div class="setting-content-header">
+                <div>
+                  <p class="section-kicker">Compte utilisateur</p>
+                  <h2>Informations du profil</h2>
+                </div>
+
+                <span class="status-badge healthy">
+                  <i></i>
+                  Compte actif
+                </span>
+              </div>
+
+              <div class="setting-section">
+                <h3>Informations personnelles</h3>
+                <p>
+                  Ces informations apparaissent dans les rapports et dans
+                  l'historique des déploiements.
+                </p>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="firstName">Prénom</label>
+                    <input id="firstName" type="text" value="Houda" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="lastName">Nom</label>
+                    <input id="lastName" type="text" value="Abdessamad" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="email">Adresse e-mail</label>
+                    <input id="email" type="email" value="houda@dblink.ma" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="role">Rôle</label>
+                    <select id="role">
+                      <option>Administratrice DBA</option>
+                      <option>Équipe reporting</option>
+                      <option>Consultation uniquement</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-section">
+                <h3>Préférences de notification</h3>
+                <p>
+                  Choisissez les notifications que vous souhaitez recevoir.
+                </p>
+
+                <div class="toggle-row">
+                  <div class="toggle-text">
+                    <strong>Alertes critiques</strong>
+                    <small>Recevoir une notification dès qu'un agent est en erreur.</small>
+                  </div>
+
+                  <button class="toggle-switch">
+                    <span></span>
+                  </button>
+                </div>
+
+                <div class="toggle-row">
+                  <div class="toggle-text">
+                    <strong>Rapport quotidien</strong>
+                    <small>Recevoir un résumé de l'état des réplications à 08:00.</small>
+                  </div>
+
+                  <button class="toggle-switch">
+                    <span></span>
+                  </button>
+                </div>
+
+                <div class="toggle-row">
+                  <div class="toggle-text">
+                    <strong>Notifications de maintenance</strong>
+                    <small>Être informée des opérations de maintenance planifiées.</small>
+                  </div>
+
+                  <button class="toggle-switch disabled">
+                    <span></span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="setting-section">
+                <h3>Connexion au système</h3>
+                <p>
+                  Vérifiez l'accès à la configuration centralisée de Replicon.
+                </p>
+
+                <div class="connection-card">
+                  <i class="fa-solid fa-circle-check"></i>
+
+                  <div>
+                    <strong>Connexion sécurisée et opérationnelle</strong>
+                    <small>Dernière vérification : aujourd'hui à 10:42</small>
+                  </div>
+
+                  <button class="text-button">
+                    Tester
+                    <i class="fa-solid fa-arrow-rotate-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="setting-actions">
+                <button class="secondary-button">
+                  Annuler
+                </button>
+
+                <button class="primary-button">
+                  <i class="fa-solid fa-floppy-disk"></i>
+                  Enregistrer les modifications
+                </button>
+              </div>
+            </section>
+
+            <section class="panel danger-zone">
+              <div class="setting-content-header">
+                <div>
+                  <p class="section-kicker">Zone sensible</p>
+                  <h2>Réinitialisation</h2>
+                </div>
+              </div>
+
+              <div class="setting-section">
+                <h3>Réinitialiser les préférences locales</h3>
+
+                <p>
+                  Cette action rétablit les préférences visuelles et les filtres
+                  de l'application. Les données de réplication ne seront pas
+                  supprimées.
+                </p>
+
+                <div style="margin-top: 15px;">
+                  <button class="danger-action">
+                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                    Réinitialiser les préférences
+                  </button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+<style>
+  .settings-header,
+  .settings-layout {
+    width: 100%;
+    max-width: 1180px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+
+  .settings-layout .setting-content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding: 26px;
+    overflow: visible;
+  }
+
+  .setting-content > h2 {
+    grid-column: 1 / -1;
+    margin: 0 0 4px;
+    color: var(--navy);
+    font-size: 22px;
+  }
+
+  .setting-content > p {
+    min-width: 0;
+    margin: 0 !important;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #f8faff;
+    color: #405068;
+    font-size: 14px;
+    line-height: 1.6 !important;
+  }
+
+  .setting-content > a {
+    grid-column: 1 / -1;
+    margin-top: 4px !important;
+    color: var(--blue);
+    font-weight: 700;
+  }
+
+  @media (max-width: 800px) {
+    .settings-layout .setting-content {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
+    <script src="settings.js?v=2"></script>
+    <script src="settings-live.js"></script>
+  </body>
+</html>

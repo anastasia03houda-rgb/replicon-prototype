@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Liste des sites de réplication SQL Server de DBLINK."
+    />
+    <title>Sites | Replicon</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      .sites-page-header {
+        padding: 34px 0 25px;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .sites-page-header h1 {
+        margin-top: 7px;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+        font-size: 37px;
+        letter-spacing: -1.5px;
+      }
+
+      .sites-page-header p:last-child {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .site-summary-grid {
+        margin-bottom: 18px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 17px;
+      }
+
+      .site-summary-card {
+        padding: 19px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: white;
+      }
+
+      .site-summary-card > i {
+        width: 43px;
+        height: 43px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: var(--blue-light);
+        color: var(--blue);
+      }
+
+      .site-summary-card:nth-child(2) > i {
+        color: var(--green);
+        background: var(--green-light);
+      }
+
+      .site-summary-card:nth-child(3) > i {
+        color: var(--orange);
+        background: var(--orange-light);
+      }
+
+      .site-summary-card p {
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .site-summary-card strong {
+        margin-top: 3px;
+        display: block;
+        color: var(--navy);
+        font-size: 20px;
+      }
+
+      .site-tools {
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .search-box {
+        width: 300px;
+        position: relative;
+      }
+
+      .search-box i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        color: #9aa7b9;
+        font-size: 12px;
+        transform: translateY(-50%);
+      }
+
+      .search-box input {
+        width: 100%;
+        height: 38px;
+        padding: 0 13px 0 35px;
+        outline: none;
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: #fafcff;
+        font-family: inherit;
+        font-size: 11px;
+      }
+
+      .search-box input:focus {
+        border-color: #9ac7fb;
+        background: white;
+      }
+
+      .filter-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .filter-button {
+        height: 34px;
+        padding: 0 11px;
+        color: #64728a;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      .filter-button:hover {
+        color: var(--blue);
+        border-color: #a8d1ff;
+      }
+
+      .site-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .site-name strong {
+        font-size: 11px;
+      }
+
+      .site-name small {
+        margin-top: 2px;
+      }
+
+      .site-action {
+        width: 30px;
+        height: 30px;
+        color: var(--blue);
+        border-radius: 8px;
+        background: var(--blue-light);
+      }
+
+      .site-action:hover {
+        color: white;
+        background: var(--blue);
+      }
+
+      .site-table td:last-child {
+        text-align: right;
+      }
+
+      .site-footer {
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #8a97aa;
+        border-top: 1px solid var(--line);
+        font-size: 10px;
+      }
+
+      .pagination {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .pagination button {
+        width: 27px;
+        height: 27px;
+        color: #748197;
+        border-radius: 7px;
+        background: transparent;
+        font-size: 10px;
+      }
+
+      .pagination button.active-page {
+        color: white;
+        background: var(--blue);
+      }
+
+      @media (max-width: 800px) {
+        .site-summary-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .sites-page-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .site-tools {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .search-box {
+          width: 100%;
+        }
+
+        .filter-buttons {
+          overflow-x: auto;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">
+            <i class="fa-solid fa-database"></i>
+          </span>
+
+          <span>
+            <strong>Replicon</strong>
+            <small>Control Center</small>
+          </span>
+        </a>
+
+        <nav class="main-nav">
+          <p class="nav-label">Espace de travail</p>
+
+          <a class="nav-link" href="index.html">
+            <i class="fa-solid fa-grid-2"></i>
+            Tableau de bord
+          </a>
+
+          <a class="nav-link active" href="sites.html">
+            <i class="fa-solid fa-earth-americas"></i>
+            Sites
+          </a>
+
+          <a class="nav-link" href="monitoring.html">
+            <i class="fa-solid fa-chart-line"></i>
+            Supervision
+          </a>
+
+          <a class="nav-link" href="deployments.html">
+            <i class="fa-solid fa-rocket"></i>
+            Déploiements
+          </a>
+
+          <p class="nav-label">Administration</p>
+
+          <a class="nav-link" href="alerts.html">
+            <i class="fa-solid fa-bell"></i>
+            Alertes
+            <span class="nav-count">3</span>
+          </a>
+
+          <a class="nav-link" href="reports.html">
+            <i class="fa-solid fa-file-lines"></i>
+            Rapports
+          </a>
+
+          <a class="nav-link" href="settings.html">
+            <i class="fa-solid fa-sliders"></i>
+            Paramètres
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="support-card">
+            <span class="support-icon">
+              <i class="fa-regular fa-circle-question"></i>
+            </span>
+
+            <p>Besoin d'assistance ?</p>
+            <a href="#">Consulter le runbook</a>
+          </div>
+
+          <div class="user-card">
+            <div class="avatar">HA</div>
+
+            <div>
+              <strong>Houda Abdessamad</strong>
+              <span>Administratrice DBA</span>
+            </div>
+
+            <button class="icon-button">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="menu-button">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <div class="breadcrumb">
+            <span>DBLINK</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <strong>Sites</strong>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="icon-button notification-button">
+              <i class="fa-regular fa-bell"></i>
+              <span></span>
+            </button>
+
+            <button class="icon-button">
+              <i class="fa-regular fa-circle-question"></i>
+            </button>
+
+            <button class="profile-button">
+              <span class="avatar">HA</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="sites-page-header">
+          <div>
+            <p class="eyebrow">
+              <span></span>
+              Architecture multi-sites
+            </p>
+
+            <h1>Gestion des sites</h1>
+
+            <p>
+              Consultez et surveillez les 17 topologies de réplication
+              indépendantes.
+            </p>
+            </div>
+           <a href="add_site.php"
+           style="display:inline-flex; align-items:center; gap:8px; padding:12px 18px; border-radius:10px; background:#2878dc; color:white; text-decoration:none; font-weight:700;">
+           <i class="fa-solid fa-plus"></i>
+           Ajouter un site
+           </a>
+          
+        </section>
+
+        <section class="site-summary-grid">
+          <article class="site-summary-card">
+            <i class="fa-solid fa-earth-americas"></i>
+
+            <div>
+              <p>Sites configurés</p>
+              <strong>17 sites</strong>
+            </div>
+          </article>
+
+          <article class="site-summary-card">
+            <i class="fa-solid fa-circle-check"></i>
+
+            <div>
+              <p>Sites opérationnels</p>
+              <strong>14 sites</strong>
+            </div>
+          </article>
+
+          <article class="site-summary-card">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <div>
+              <p>Sites à surveiller</p>
+              <strong>3 sites</strong>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Liste complète</p>
+              <h2>Topologies de réplication</h2>
+            </div>
+
+            <button class="text-button">
+              <i class="fa-solid fa-download"></i>
+              Exporter la liste
+            </button>
+          </div>
+
+          <div class="site-tools">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input
+                type="text"
+                id="siteSearch"
+                placeholder="Rechercher un pays ou un code site..."
+              />
+            </div>
+
+            <div class="filter-buttons">
+              <button class="filter-button">
+                <i class="fa-solid fa-filter"></i>
+                Tous les états
+              </button>
+
+              <button class="filter-button">
+                <i class="fa-solid fa-circle-check"></i>
+                Opérationnels
+              </button>
+
+              <button class="filter-button">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                À surveiller
+              </button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="site-table">
+              <thead>
+                <tr>
+                  <th>Site</th>
+                  <th>Publisher / Distributor</th>
+                  <th>Subscriber</th>
+                  <th>Base reporting</th>
+                  <th>Dernière synchronisation</th>
+                  <th>État</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-fr">FR</span>
+                      <div>
+                        <strong>France</strong>
+                        <small>Code : FR01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>FR01MESSQL01</code></td>
+                  <td><code>FR01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 12 sec.</strong><small>Latence : 0,7 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-us">US</span>
+                      <div>
+                        <strong>États-Unis</strong>
+                        <small>Code : US01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>US01MESSQL01</code></td>
+                  <td><code>US01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 18 sec.</strong><small>Latence : 1,4 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-br">BR</span>
+                      <div>
+                        <strong>Brésil</strong>
+                        <small>Code : BR01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>BR01MESSQL01</code></td>
+                  <td><code>BR01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 3 min.</strong><small>Latence : 42 sec.</small></td>
+                  <td><span class="status-badge warning"><i></i> Retard</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-de">DE</span>
+                      <div>
+                        <strong>Allemagne</strong>
+                        <small>Code : DE01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>DE01MESSQL01</code></td>
+                  <td><code>DE01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 1 min.</strong><small>Agent arrêté</small></td>
+                  <td><span class="status-badge error"><i></i> Incident</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-fr">ES</span>
+                      <div>
+                        <strong>Espagne</strong>
+                        <small>Code : ES01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>ES01MESSQL01</code></td>
+                  <td><code>ES01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 9 sec.</strong><small>Latence : 0,5 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-us">IT</span>
+                      <div>
+                        <strong>Italie</strong>
+                        <small>Code : IT01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>IT01MESSQL01</code></td>
+                  <td><code>IT01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 22 sec.</strong><small>Latence : 1,9 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-br">PT</span>
+                      <div>
+                        <strong>Portugal</strong>
+                        <small>Code : PT01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>PT01MESSQL01</code></td>
+                  <td><code>PT01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 14 sec.</strong><small>Latence : 0,8 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-de">MA</span>
+                      <div>
+                        <strong>Maroc</strong>
+                        <small>Code : MA01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>MA01MESSQL01</code></td>
+                  <td><code>MA01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 11 sec.</strong><small>Latence : 0,6 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-fr">BE</span>
+                      <div>
+                        <strong>Belgique</strong>
+                        <small>Code : BE01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>BE01MESSQL01</code></td>
+                  <td><code>BE01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 16 sec.</strong><small>Latence : 1,1 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-us">CA</span>
+                      <div>
+                        <strong>Canada</strong>
+                        <small>Code : CA01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>CA01MESSQL01</code></td>
+                  <td><code>CA01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 8 sec.</strong><small>Latence : 0,4 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-br">MX</span>
+                      <div>
+                        <strong>Mexique</strong>
+                        <small>Code : MX01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>MX01MESSQL01</code></td>
+                  <td><code>MX01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 2 min.</strong><small>Latence : 26 sec.</small></td>
+                  <td><span class="status-badge warning"><i></i> Retard</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-de">PL</span>
+                      <div>
+                        <strong>Pologne</strong>
+                        <small>Code : PL01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>PL01MESSQL01</code></td>
+                  <td><code>PL01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 10 sec.</strong><small>Latence : 0,7 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-fr">NL</span>
+                      <div>
+                        <strong>Pays-Bas</strong>
+                        <small>Code : NL01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>NL01MESSQL01</code></td>
+                  <td><code>NL01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 13 sec.</strong><small>Latence : 0,9 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-us">UK</span>
+                      <div>
+                        <strong>Royaume-Uni</strong>
+                        <small>Code : UK01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>UK01MESSQL01</code></td>
+                  <td><code>UK01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 16 sec.</strong><small>Latence : 1,2 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-br">AR</span>
+                      <div>
+                        <strong>Argentine</strong>
+                        <small>Code : AR01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>AR01MESSQL01</code></td>
+                  <td><code>AR01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 15 sec.</strong><small>Latence : 1 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-de">CH</span>
+                      <div>
+                        <strong>Suisse</strong>
+                        <small>Code : CH01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>CH01MESSQL01</code></td>
+                  <td><code>CH01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 7 sec.</strong><small>Latence : 0,4 sec.</small></td>
+                  <td><span class="status-badge healthy"><i></i> Running</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="site-name">
+                      <span class="country-fr">SE</span>
+                      <div>
+                        <strong>Suède</strong>
+                        <small>Code : SE01</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><code>SE01MESSQL01</code></td>
+                  <td><code>SE01RPT01</code></td>
+                  <td><strong>FactoryDW</strong></td>
+                  <td><strong>Il y a 2 min.</strong><small>Latence : 31 sec.</small></td>
+                  <td><span class="status-badge warning"><i></i> Retard</span></td>
+                  <td><button class="site-action"><i class="fa-solid fa-arrow-right"></i></button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="site-footer">
+            <span>Affichage de 17 sites sur 17</span>
+
+            <div class="pagination">
+              <button><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="active-page">1</button>
+              <button><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="sites.js?v=2"></script>
+    <script src="sites-live.js"></script>
+  </body>
+</html>

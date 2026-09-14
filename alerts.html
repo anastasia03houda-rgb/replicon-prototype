@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Gestion des alertes de réplication SQL Server."
+    />
+    <title>Alertes | Replicon</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      .alerts-header {
+        padding: 34px 0 25px;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .alerts-header h1 {
+        margin-top: 7px;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+        font-size: 37px;
+        letter-spacing: -1.5px;
+      }
+
+      .alerts-header p:last-child {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .alert-stats {
+        margin-bottom: 18px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 17px;
+      }
+
+      .alert-stat {
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: white;
+      }
+
+      .alert-stat-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        font-size: 15px;
+      }
+
+      .alert-stat.critical .alert-stat-icon {
+        color: var(--red);
+        background: var(--red-light);
+      }
+
+      .alert-stat.warning .alert-stat-icon {
+        color: var(--orange);
+        background: var(--orange-light);
+      }
+
+      .alert-stat.info .alert-stat-icon {
+        color: var(--blue);
+        background: var(--blue-light);
+      }
+
+      .alert-stat p {
+        color: #8b97aa;
+        font-size: 10px;
+      }
+
+      .alert-stat strong {
+        margin-top: 3px;
+        display: block;
+        color: var(--navy);
+        font-size: 21px;
+      }
+
+      .alert-control-panel {
+        overflow: hidden;
+      }
+
+      .alert-toolbar {
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .alert-search {
+        width: 310px;
+        position: relative;
+      }
+
+      .alert-search i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        color: #9aa6b7;
+        font-size: 12px;
+        transform: translateY(-50%);
+      }
+
+      .alert-search input {
+        width: 100%;
+        height: 38px;
+        padding: 0 13px 0 35px;
+        outline: none;
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: #fbfcff;
+        font-family: inherit;
+        font-size: 11px;
+      }
+
+      .alert-search input:focus {
+        border-color: #9fcaff;
+        background: white;
+      }
+
+      .alert-filters {
+        display: flex;
+        gap: 8px;
+      }
+
+      .alert-filter {
+        height: 34px;
+        padding: 0 11px;
+        color: #65728a;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      .alert-filter:hover,
+      .alert-filter.active-filter {
+        color: var(--blue);
+        border-color: #b8dafe;
+        background: var(--blue-light);
+      }
+
+      .alerts-list {
+        padding: 8px 20px 20px;
+      }
+
+      .alert-record {
+        margin-top: 12px;
+        padding: 17px;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: #fff;
+        transition: 0.25s ease;
+      }
+
+      .alert-record:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+      }
+
+      .record-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        font-size: 14px;
+      }
+
+      .alert-record.critical .record-icon {
+        color: var(--red);
+        background: var(--red-light);
+      }
+
+      .alert-record.warning .record-icon {
+        color: var(--orange);
+        background: var(--orange-light);
+      }
+
+      .alert-record.info .record-icon {
+        color: var(--blue);
+        background: var(--blue-light);
+      }
+
+      .record-content {
+        flex: 1;
+      }
+
+      .record-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+      }
+
+      .record-title h2 {
+        color: #35445c;
+        font-size: 13px;
+      }
+
+      .record-date {
+        flex-shrink: 0;
+        color: #9aa6b7;
+        font-size: 9px;
+      }
+
+      .record-content > p {
+        max-width: 710px;
+        margin-top: 6px;
+        color: #8390a2;
+        font-size: 10px;
+        line-height: 1.6;
+      }
+
+      .record-meta {
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        color: #77869b;
+        font-size: 9px;
+      }
+
+      .record-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .record-meta i {
+        color: #94a2b5;
+      }
+
+      .record-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        gap: 10px;
+      }
+
+      .priority-badge {
+        padding: 5px 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        border-radius: 20px;
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .priority-badge.critical {
+        color: #d14252;
+        background: var(--red-light);
+      }
+
+      .priority-badge.warning {
+        color: #ae762a;
+        background: var(--orange-light);
+      }
+
+      .priority-badge.info {
+        color: #2776db;
+        background: var(--blue-light);
+      }
+
+      .resolve-button {
+        height: 29px;
+        padding: 0 10px;
+        color: var(--blue);
+        border-radius: 8px;
+        background: var(--blue-light);
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .resolve-button:hover {
+        color: white;
+        background: var(--blue);
+      }
+
+      .alert-footer {
+        padding: 14px 20px;
+        display: flex;
+        justify-content: space-between;
+        color: #8895a8;
+        border-top: 1px solid var(--line);
+        font-size: 10px;
+      }
+
+      @media (max-width: 850px) {
+        .alert-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .alerts-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .alert-toolbar {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .alert-search {
+          width: 100%;
+        }
+
+        .alert-filters {
+          overflow-x: auto;
+        }
+
+        .alert-record {
+          flex-wrap: wrap;
+        }
+
+        .record-actions {
+          width: 100%;
+          align-items: flex-start;
+          flex-direction: row;
+          justify-content: space-between;
+        }
+
+        .record-title {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 5px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">
+            <i class="fa-solid fa-database"></i>
+          </span>
+
+          <span>
+            <strong>Replicon</strong>
+            <small>Control Center</small>
+          </span>
+        </a>
+
+        <nav class="main-nav">
+          <p class="nav-label">Espace de travail</p>
+
+          <a class="nav-link" href="index.html">
+            <i class="fa-solid fa-grid-2"></i>
+            Tableau de bord
+          </a>
+
+          <a class="nav-link" href="sites.html">
+            <i class="fa-solid fa-earth-americas"></i>
+            Sites
+          </a>
+
+          <a class="nav-link" href="monitoring.html">
+            <i class="fa-solid fa-chart-line"></i>
+            Supervision
+          </a>
+
+          <a class="nav-link" href="deployments.html">
+            <i class="fa-solid fa-rocket"></i>
+            Déploiements
+          </a>
+
+          <p class="nav-label">Administration</p>
+
+          <a class="nav-link active" href="alerts.html">
+            <i class="fa-solid fa-bell"></i>
+            Alertes
+            <span class="nav-count">3</span>
+          </a>
+
+          <a class="nav-link" href="reports.html">
+            <i class="fa-solid fa-file-lines"></i>
+            Rapports
+          </a>
+
+          <a class="nav-link" href="settings.html">
+            <i class="fa-solid fa-sliders"></i>
+            Paramètres
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="support-card">
+            <span class="support-icon">
+              <i class="fa-regular fa-circle-question"></i>
+            </span>
+
+            <p>Besoin d'assistance ?</p>
+            <a href="#">Consulter le runbook</a>
+          </div>
+
+          <div class="user-card">
+            <div class="avatar">HA</div>
+
+            <div>
+              <strong>Houda Abdessamad</strong>
+              <span>Administratrice DBA</span>
+            </div>
+
+            <button class="icon-button">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="menu-button">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <div class="breadcrumb">
+            <span>DBLINK</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <strong>Alertes</strong>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="icon-button notification-button">
+              <i class="fa-regular fa-bell"></i>
+              <span></span>
+            </button>
+
+            <button class="icon-button">
+              <i class="fa-regular fa-circle-question"></i>
+            </button>
+
+            <button class="profile-button">
+              <span class="avatar">HA</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="alerts-header">
+          <div>
+            <p class="eyebrow">
+              <span></span>
+              Centre de notifications
+            </p>
+
+            <h1>Alertes</h1>
+
+            <p>
+              Identifiez rapidement les incidents et les anomalies qui
+              affectent les réplications SQL Server.
+            </p>
+          </div>
+
+          <button class="primary-button">
+            <i class="fa-solid fa-check-double"></i>
+            Marquer tout comme lu
+          </button>
+        </section>
+
+        <section class="alert-stats">
+          <article class="alert-stat critical">
+            <span class="alert-stat-icon">
+              <i class="fa-solid fa-circle-exclamation"></i>
+            </span>
+
+            <div>
+              <p>Incidents critiques</p>
+              <strong>1 incident</strong>
+            </div>
+          </article>
+
+          <article class="alert-stat warning">
+            <span class="alert-stat-icon">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </span>
+
+            <div>
+              <p>Avertissements</p>
+              <strong>2 alertes</strong>
+            </div>
+          </article>
+
+          <article class="alert-stat info">
+            <span class="alert-stat-icon">
+              <i class="fa-solid fa-circle-info"></i>
+            </span>
+
+            <div>
+              <p>Alertes actives</p>
+              <strong>8 messages</strong>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel alert-control-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Liste des incidents</p>
+              <h2>Alertes actives</h2>
+            </div>
+
+            <button class="text-button">
+              <i class="fa-solid fa-download"></i>
+              Exporter
+            </button>
+          </div>
+
+          <div class="alert-toolbar">
+            <div class="alert-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input
+                type="text"
+                placeholder="Rechercher une alerte ou un site..."
+              />
+            </div>
+
+            <div class="alert-filters">
+              <button class="alert-filter active-filter">Toutes</button>
+              <button class="alert-filter">Critiques</button>
+              <button class="alert-filter">Avertissements</button>
+              <button class="alert-filter">Informations</button>
+            </div>
+          </div>
+
+          <div class="alerts-list">
+            <article class="alert-record critical">
+              <span class="record-icon">
+                <i class="fa-solid fa-plug-circle-xmark"></i>
+              </span>
+
+              <div class="record-content">
+                <div class="record-title">
+                  <h2>Distribution Agent arrêté</h2>
+                  <span class="record-date">Il y a 1 minute</span>
+                </div>
+
+                <p>
+                  Le Distribution Agent de DE01MESSQL01 ne peut plus joindre
+                  le Subscriber DE01RPT01. Les nouvelles commandes restent dans
+                  la base distribution.
+                </p>
+
+                <div class="record-meta">
+                  <span>
+                    <i class="fa-solid fa-location-dot"></i>
+                    Site DE01 — Allemagne
+                  </span>
+
+                  <span>
+                    <i class="fa-solid fa-server"></i>
+                    DE01MESSQL01
+                  </span>
+
+                  <span>
+                    <i class="fa-solid fa-list-check"></i>
+                    0 commande livrée
+                  </span>
+                </div>
+              </div>
+
+              <div class="record-actions">
+                <span class="priority-badge critical">
+                  <i class="fa-solid fa-circle"></i>
+                  Critique
+                </span>
+
+                <button class="resolve-button">
+                  Ouvrir l'incident
+                </button>
+              </div>
+            </article>
+
+            <article class="alert-record warning">
+              <span class="record-icon">
+                <i class="fa-solid fa-hourglass-half"></i>
+              </span>
+
+              <div class="record-content">
+                <div class="record-title">
+                  <h2>Latence élevée détectée</h2>
+                  <span class="record-date">Il y a 3 minutes</span>
+                </div>
+
+                <p>
+                  La réplication du site BR01 présente une latence supérieure
+                  au seuil attendu. La file contient actuellement 1 113
+                  commandes à distribuer.
+                </p>
+
+                <div class="record-meta">
+                  <span>
+                    <i class="fa-solid fa-location-dot"></i>
+                    Site BR01 — Brésil
+                  </span>
+
+                  <span>
+                    <i class="fa-solid fa-clock"></i>
+                    Latence : 42 secondes
+                  </span>
+
+                  <span>
+                    <i class="fa-solid fa-list-check"></i>
+                    1 113 commandes
+                  </span>
+                </div>
+              </div>
+
+              <div class="record-actions">
+                <span class="priority-badge warning">
+                  <i class="fa-solid fa-circle"></i>
+                  Avertissement
+                </span>
+
+                <button class="resolve-button">
+                  Analyser la file
+                </button>
+              </div>
+            </article>
+
+            <article class="alert-record warning">
+              <span class="record-icon">
+                <i class="fa-solid fa-hard-drive"></i>
+              </span>
+
+              <div class="record-content">
+                <div class="record-title">
+                  <h2>Espace disque à surveiller</h2>
+                  <span class="record-date">Il y a 18 minutes</span>
+                </div>
+
+                <p>
+                  Le volume utilisé pour la base distribution du site US03 est
+                  occupé à 78 %. Une surveillance renforcée est recommandée
+                  avant le prochain snapshot.
+                </p>
+
+                <div class="record-meta">
+                  <span>
+                    <i class="fa-solid fa-location-dot"></i>
+                    Site US03 — États-Unis
+                  </span>
+
+                  <span>
+                    <i class="fa-solid fa-hard-drive"></i>
+                    Volume D:
+                  </span>
+
+                  <span>
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Occupation : 78 %
+                  </span>
+                </div>
+              </div>
+
+              <div class="record-actions">
+                <span class="priority-badge warning">
+                  <i class="fa-solid fa-circle"></i>
+                  Avertissement
+                </span>
+
+                <button class="resolve-button">
+                  Voir les détails
+                </button>
+              </div>
+            </article>
+
+            <article class="alert-record info">
+              <span class="record-icon">
+                <i class="fa-solid fa-camera"></i>
+              </span>
+
+              <div class="record-content">
+                <div class="record-title">
+                  <h2>Snapshot appliqué avec succès</h2>
+                  <span class="record-date">Aujourd'hui, 08:10</span>
+                </div>
+
+                <p>
+                  Le snapshot de la publication du site CA01 a été généré et
+                  appliqué à FactoryDW sans erreur. Le site est prêt pour les
+                  tests fonctionnels.
+                </p>
+
+                <div class="record-meta">
+                  <span>
+                    <i class="fa-solid fa-location-dot"></i>
+                    Site CA01 — Canada
+                  </span>
+
+                  <span>
+                    <i class="fa-solid fa-database"></i>
+                    FactoryDW
+                  </span>
+
+                  <span>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Initialisation conforme
+                  </span>
+                </div>
+              </div>
+
+              <div class="record-actions">
+                <span class="priority-badge info">
+                  <i class="fa-solid fa-circle"></i>
+                  Information
+                </span>
+
+                <button class="resolve-button">
+                  Consulter
+                </button>
+              </div>
+            </article>
+          </div>
+
+          <div class="alert-footer">
+            <span>4 alertes affichées sur 8 notifications du jour</span>
+            <span>Dernière actualisation : il y a 1 minute</span>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js?v=2"></script>
+    <script src="alerts-live.js"></script>
+  </body>
+</html>

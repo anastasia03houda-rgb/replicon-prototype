@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Replicon, centre de contrôle de la réplication SQL Server."
+    />
+    <title>Replicon | SQL Replication Control Center</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#dashboard" aria-label="Accueil Replicon">
+          <span class="brand-mark"><i class="fa-solid fa-database"></i></span>
+          <span>
+            <strong>Replicon</strong>
+            <small>Control Center</small>
+          </span>
+        </a>
+
+        <nav class="main-nav" aria-label="Navigation principale">
+          <p class="nav-label">Espace de travail</p>
+
+          <a class="nav-link active" href="#dashboard">
+            <i class="fa-solid fa-grid-2"></i>
+            Tableau de bord
+          </a>
+
+          <a class="nav-link" href="sites.html">
+            <i class="fa-solid fa-earth-americas"></i>
+            Sites
+          </a>
+
+          <a class="nav-link" href="monitoring.html">
+            <i class="fa-solid fa-chart-line"></i>
+            Supervision
+          </a>
+
+          <a class="nav-link" href="deployments.html">
+            <i class="fa-solid fa-rocket"></i>
+            Déploiements
+          </a>
+
+          <p class="nav-label">Administration</p>
+
+          <a class="nav-link" href="alerts.html">
+            <i class="fa-solid fa-bell"></i>
+            Alertes
+            <span class="nav-count">3</span>
+          </a>
+
+          <a class="nav-link" href="reports.html">
+            <i class="fa-solid fa-file-lines"></i>
+            Rapports
+          </a>
+
+          <a class="nav-link" href="#settings">
+            <i class="fa-solid fa-sliders"></i>
+            Paramètres
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="support-card">
+            <span class="support-icon">
+              <i class="fa-regular fa-circle-question"></i>
+            </span>
+            <p>Besoin d'assistance ?</p>
+            <a href="#support">Consulter le runbook</a>
+          </div>
+
+          <div class="user-card">
+            <div class="avatar">HA</div>
+
+            <div>
+              <strong>Houda Abdessamad</strong>
+              <span>Administratrice DBA</span>
+            </div>
+
+            <button class="icon-button" aria-label="Ouvrir le menu utilisateur">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content" id="dashboard">
+        <header class="topbar">
+          <button class="menu-button" aria-label="Ouvrir le menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <div class="breadcrumb">
+            <span>DBLINK</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <strong>Vue d'ensemble</strong>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="icon-button notification-button" aria-label="Notifications">
+              <i class="fa-regular fa-bell"></i>
+              <span></span>
+            </button>
+
+            <button class="icon-button" aria-label="Aide">
+              <i class="fa-regular fa-circle-question"></i>
+            </button>
+
+            <button class="profile-button">
+              <span class="avatar">HA</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="hero-section">
+          <div>
+            <p class="eyebrow">
+              <span></span>
+              Système de réplication opérationnel
+            </p>
+
+            <h1>Bonjour, Houda <span>✦</span></h1>
+
+            <p class="hero-text">
+              Voici la santé de vos réplications SQL Server à travers les
+              17 sites internationaux.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <button class="secondary-button">
+              <i class="fa-regular fa-calendar"></i>
+              17 Sept. 2026
+            </button>
+
+            <a class="primary-button" href="add_deployment.php">
+             <i class="fa-solid fa-plus"></i>
+            Nouveau déploiement
+            </a>
+          </div>
+        </section>
+
+        <section class="metric-grid" aria-label="Indicateurs de réplication">
+          <article class="metric-card accent-blue">
+            <div class="metric-heading">
+              <span class="metric-icon">
+                <i class="fa-solid fa-server"></i>
+              </span>
+
+              <span class="trend positive">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                6,2 %
+              </span>
+            </div>
+
+            <p>Sites surveillés</p>
+            <h2>17 <span>/ 17</span></h2>
+            <small>Toutes les topologies sont actives</small>
+          </article>
+
+          <article class="metric-card accent-green">
+            <div class="metric-heading">
+              <span class="metric-icon">
+                <i class="fa-solid fa-circle-check"></i>
+              </span>
+
+              <span class="live-dot">En direct</span>
+            </div>
+
+            <p>Réplications saines</p>
+            <h2>14 <span>sites</span></h2>
+            <small>82,4 % du parc fonctionne normalement</small>
+          </article>
+
+          <article class="metric-card accent-gold">
+            <div class="metric-heading">
+              <span class="metric-icon">
+                <i class="fa-solid fa-clock"></i>
+              </span>
+
+              <span class="trend neutral">
+                <i class="fa-solid fa-minus"></i>
+                stable
+              </span>
+            </div>
+
+            <p>Latence moyenne</p>
+            <h2>1,8 <span>sec.</span></h2>
+            <small>Sur les 24 dernières heures</small>
+          </article>
+
+          <article class="metric-card accent-rose">
+            <div class="metric-heading">
+              <span class="metric-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </span>
+
+              <span class="alert-tag">À vérifier</span>
+            </div>
+
+            <p>Alertes actives</p>
+            <h2>3 <span>alertes</span></h2>
+            <small>2 avertissements et 1 incident</small>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel replication-overview" id="monitoring">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">Vue globale</p>
+                <h2>Activité de réplication</h2>
+              </div>
+
+              <button class="select-button">
+                7 derniers jours
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+
+            <div class="chart-legend">
+              <span>
+                <i class="legend-dot blue"></i>
+                Transactions livrées
+              </span>
+
+              <span>
+                <i class="legend-dot gold"></i>
+                Latence moyenne
+              </span>
+            </div>
+
+            <div class="chart-area" aria-label="Graphique d'activité de réplication">
+              <div class="chart-y-axis">
+                <span>12k</span>
+                <span>9k</span>
+                <span>6k</span>
+                <span>3k</span>
+                <span>0</span>
+              </div>
+
+              <div class="chart-lines">
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+
+                <svg viewBox="0 0 700 250" role="img">
+                  <defs>
+                    <linearGradient id="fillBlue" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#2b8cff" stop-opacity=".28" />
+                      <stop offset="100%" stop-color="#2b8cff" stop-opacity="0" />
+                    </linearGradient>
+                  </defs>
+
+                  <path
+                    class="area-path"
+                    d="M0,186 C55,174 70,164 112,169 S168,129 220,146 S291,103 333,119 S393,92 441,104 S504,48 555,70 S619,31 700,43 L700,250 L0,250 Z"
+                  ></path>
+
+                  <path
+                    class="main-line"
+                    d="M0,186 C55,174 70,164 112,169 S168,129 220,146 S291,103 333,119 S393,92 441,104 S504,48 555,70 S619,31 700,43"
+                  ></path>
+
+                  <path
+                    class="secondary-line"
+                    d="M0,212 C55,203 78,205 112,199 S173,191 220,196 S286,176 333,185 S392,168 441,173 S510,151 555,157 S636,126 700,133"
+                  ></path>
+
+                  <circle cx="555" cy="70" r="5" class="chart-point"></circle>
+                  <circle cx="700" cy="43" r="5" class="chart-point"></circle>
+                </svg>
+
+                <div class="chart-x-axis">
+                  <span>Lun</span>
+                  <span>Mar</span>
+                  <span>Mer</span>
+                  <span>Jeu</span>
+                  <span>Ven</span>
+                  <span>Sam</span>
+                  <span>Dim</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel health-panel">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">État du parc</p>
+                <h2>État déclaré des sites</h2>
+              </div>
+
+              <button class="text-button">
+                Voir tous
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+
+            <div class="donut-wrapper">
+              <div class="donut-chart">
+                <div>
+                  <strong>82%</strong>
+                  <span>conformes</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="health-legend">
+              <div>
+                <span class="status-dot status-healthy"></span>
+                <p>Opérationnels <strong>14</strong></p>
+              </div>
+
+              <div>
+                <span class="status-dot status-warning"></span>
+                <p>À surveiller <strong>2</strong></p>
+              </div>
+
+              <div>
+                <span class="status-dot status-error"></span>
+                <p>En erreur <strong>1</strong></p>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="bottom-grid">
+          <article class="panel sites-panel" id="sites">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">Topologies locales</p>
+                <h2>Sites prioritaires</h2>
+              </div>
+
+              <button class="text-button">
+                Voir les 17 sites
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Site</th>
+                    <th>Publisher / Distributor</th>
+                    <th>Subscriber</th>
+                    <th>Dernière synchro.</th>
+                    <th>État</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>
+                      <span class="country-fr">FR</span>
+                      <strong>France</strong>
+                      <small>Site FR01</small>
+                    </td>
+
+                    <td><code>FR01MESSQL01</code></td>
+
+                    <td>
+                      <code>FR01RPT01</code>
+                      <small>FactoryDW</small>
+                    </td>
+
+                    <td>
+                      <strong>Il y a 12 sec.</strong>
+                      <small>Latence : 0,7 sec.</small>
+                    </td>
+
+                    <td>
+                      <span class="status-badge healthy">
+                        <i></i>
+                        Running
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <span class="country-us">US</span>
+                      <strong>États-Unis</strong>
+                      <small>Site US02</small>
+                    </td>
+
+                    <td><code>US02MESSQL01</code></td>
+
+                    <td>
+                      <code>US02RPT01</code>
+                      <small>FactoryDW</small>
+                    </td>
+
+                    <td>
+                      <strong>Il y a 18 sec.</strong>
+                      <small>Latence : 1,4 sec.</small>
+                    </td>
+
+                    <td>
+                      <span class="status-badge healthy">
+                        <i></i>
+                        Running
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <span class="country-br">BR</span>
+                      <strong>Brésil</strong>
+                      <small>Site BR01</small>
+                    </td>
+
+                    <td><code>BR01MESSQL01</code></td>
+
+                    <td>
+                      <code>BR01RPT01</code>
+                      <small>FactoryDW</small>
+                    </td>
+
+                    <td>
+                      <strong>Il y a 3 min.</strong>
+                      <small>Latence : 42 sec.</small>
+                    </td>
+
+                    <td>
+                      <span class="status-badge warning">
+                        <i></i>
+                        Retard
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <span class="country-de">DE</span>
+                      <strong>Allemagne</strong>
+                      <small>Site DE01</small>
+                    </td>
+
+                    <td><code>DE01MESSQL01</code></td>
+
+                    <td>
+                      <code>DE01RPT01</code>
+                      <small>FactoryDW</small>
+                    </td>
+
+                    <td>
+                      <strong>Il y a 1 min.</strong>
+                      <small>Agent arrêté</small>
+                    </td>
+
+                    <td>
+                      <span class="status-badge error">
+                        <i></i>
+                        Incident
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel alerts-panel" id="alerts">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">À traiter</p>
+                <h2>Alertes récentes</h2>
+              </div>
+
+              <button class="icon-button panel-more" aria-label="Plus d'options">
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+            </div>
+
+            <div class="alert-list">
+              <article class="alert-item critical">
+                <span class="alert-icon">
+                  <i class="fa-solid fa-plug-circle-xmark"></i>
+                </span>
+
+                <div>
+                  <div class="alert-title">
+                    <h3>Distribution Agent arrêté</h3>
+                    <time>Il y a 1 min.</time>
+                  </div>
+
+                  <p><strong>DE01</strong> · Vérifier le service SQL Server Agent.</p>
+                  <a href="#incident">Ouvrir l'incident</a>
+                </div>
+              </article>
+
+              <article class="alert-item warning">
+                <span class="alert-icon">
+                  <i class="fa-solid fa-hourglass-half"></i>
+                </span>
+
+                <div>
+                  <div class="alert-title">
+                    <h3>Latence élevée détectée</h3>
+                    <time>Il y a 3 min.</time>
+                  </div>
+
+                  <p><strong>BR01</strong> · 1 843 commandes en attente.</p>
+                  <a href="#incident">Analyser la file</a>
+                </div>
+              </article>
+
+              <article class="alert-item info">
+                <span class="alert-icon">
+                  <i class="fa-solid fa-hard-drive"></i>
+                </span>
+
+                <div>
+                  <div class="alert-title">
+                    <h3>Espace disque à surveiller</h3>
+                    <time>Il y a 18 min.</time>
+                  </div>
+
+                  <p><strong>US03</strong> · Volume distribution à 78 %.</p>
+                  <a href="#incident">Voir les détails</a>
+                </div>
+              </article>
+            </div>
+
+            <a class="all-alerts-link" href="alerts.html">
+              Consulter toutes les alertes
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </article>
+        </section>
+
+        <section class="deployment-banner" id="deployments">
+          <div class="banner-icon">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+
+          <div>
+            <p class="section-kicker">Déploiement guidé</p>
+            <h2>Préparez le prochain site en toute confiance</h2>
+            <p>
+            Consultez les déploiements enregistrés et préparez les vérifications techniques
+           avant toute initialisation sur SQL Server.
+            </p>
+          </div>
+        <a class="primary-button" href="deployments.html">
+         Voir les déploiements
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </section>
+      </main>
+    </div>
+
+    <script src="dashboard-live.js?v=2"></script>
+   
+
+  <style>
+  .country-chart {
+    display: grid;
+    gap: 15px;
+    padding: 28px 24px 34px;
+    color: #45556e;
+    font-size: 13px;
+  }
+
+  .country-row {
+    display: grid;
+    grid-template-columns: minmax(95px, 150px) minmax(0, 1fr) 28px;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .country-row > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .country-track {
+    height: 15px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e8edf4;
+  }
+
+  .country-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2779e4, #76bbff);
+  }
+
+  .country-row strong {
+    color: #24364e;
+    text-align: right;
+  }
+
+  @media (max-width: 600px) {
+    .country-row {
+      grid-template-columns: 90px minmax(0, 1fr) 22px;
+      gap: 8px;
+    }
+  }
+</style>
+ </body>
+</html>

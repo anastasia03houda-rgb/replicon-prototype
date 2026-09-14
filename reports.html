@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Rapports et exportations de la réplication SQL Server."
+    />
+    <title>Rapports | Replicon</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      .reports-header {
+        padding: 34px 0 25px;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .reports-header h1 {
+        margin-top: 7px;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+        font-size: 37px;
+        letter-spacing: -1.5px;
+      }
+
+      .reports-header p:last-child {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .report-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 17px;
+      }
+
+      .report-card {
+        min-height: 220px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: white;
+        transition: 0.25s ease;
+      }
+
+      .report-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow);
+      }
+
+      .report-card::after {
+        content: "";
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        right: -34px;
+        bottom: -36px;
+        border-radius: 50%;
+      }
+
+      .report-card:nth-child(1)::after {
+        background: #e5f1ff;
+      }
+
+      .report-card:nth-child(2)::after {
+        background: #e7f9f0;
+      }
+
+      .report-card:nth-child(3)::after {
+        background: #fff2dc;
+      }
+
+      .report-icon {
+        width: 43px;
+        height: 43px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        font-size: 16px;
+      }
+
+      .report-card:nth-child(1) .report-icon {
+        color: var(--blue);
+        background: var(--blue-light);
+      }
+
+      .report-card:nth-child(2) .report-icon {
+        color: var(--green);
+        background: var(--green-light);
+      }
+
+      .report-card:nth-child(3) .report-icon {
+        color: var(--orange);
+        background: var(--orange-light);
+      }
+
+      .report-card h2 {
+        margin-top: 18px;
+        color: var(--navy);
+        font-size: 14px;
+      }
+
+      .report-card p {
+        margin-top: 7px;
+        color: #8996a8;
+        font-size: 10px;
+        line-height: 1.6;
+      }
+
+      .report-card-footer {
+        margin-top: 17px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .report-card-footer small {
+        color: #9aa6b7;
+        font-size: 9px;
+      }
+
+      .generate-button {
+        height: 30px;
+        padding: 0 10px;
+        color: var(--blue);
+        border-radius: 8px;
+        background: var(--blue-light);
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .generate-button:hover {
+        color: white;
+        background: var(--blue);
+      }
+
+      .reports-layout {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(290px, 0.8fr);
+        gap: 18px;
+      }
+
+      .report-history {
+        overflow: hidden;
+      }
+
+      .report-file {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .file-icon {
+        width: 29px;
+        height: 29px;
+        display: grid;
+        place-items: center;
+        color: #d54c57;
+        border-radius: 8px;
+        background: #fff0f1;
+        font-size: 11px;
+      }
+
+      .report-file strong,
+      .report-file small {
+        display: block;
+      }
+
+      .report-file strong {
+        color: #41516a;
+        font-size: 10px;
+      }
+
+      .report-file small {
+        margin-top: 3px;
+        color: #9aa6b7;
+        font-size: 9px;
+      }
+
+      .download-report {
+        width: 29px;
+        height: 29px;
+        color: var(--blue);
+        border-radius: 8px;
+        background: var(--blue-light);
+      }
+
+      .download-report:hover {
+        color: white;
+        background: var(--blue);
+      }
+
+      .schedule-panel {
+        overflow: hidden;
+      }
+
+      .schedule-main {
+        padding: 10px 20px 20px;
+      }
+
+      .schedule-item {
+        padding: 14px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .schedule-item:last-child {
+        border-bottom: 0;
+      }
+
+      .schedule-item i {
+        width: 31px;
+        height: 31px;
+        display: grid;
+        place-items: center;
+        color: #5a94df;
+        border-radius: 9px;
+        background: var(--blue-light);
+        font-size: 11px;
+      }
+
+      .schedule-item div {
+        flex: 1;
+      }
+
+      .schedule-item strong,
+      .schedule-item small {
+        display: block;
+      }
+
+      .schedule-item strong {
+        color: #46556d;
+        font-size: 10px;
+      }
+
+      .schedule-item small {
+        margin-top: 3px;
+        color: #9aa5b6;
+        font-size: 9px;
+      }
+
+      .schedule-toggle {
+        width: 30px;
+        height: 17px;
+        padding: 2px;
+        display: flex;
+        justify-content: flex-end;
+        border-radius: 20px;
+        background: var(--green);
+      }
+
+      .schedule-toggle span {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: white;
+      }
+
+      .schedule-footer {
+        padding: 15px 20px;
+        border-top: 1px solid var(--line);
+      }
+
+      .schedule-footer button {
+        width: 100%;
+      }
+
+      .export-panel {
+        margin-top: 18px;
+        padding: 21px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        color: white;
+        border-radius: 16px;
+        background:
+          radial-gradient(circle at 92% 10%, rgba(99, 177, 255, 0.3), transparent 22%),
+          linear-gradient(110deg, #112b54, #1e518c);
+      }
+
+      .export-panel-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .export-panel-left > i {
+        width: 45px;
+        height: 45px;
+        display: grid;
+        place-items: center;
+        color: #f0c475;
+        border-radius: 12px;
+        background: rgba(239, 184, 96, 0.14);
+        font-size: 18px;
+      }
+
+      .export-panel h2 {
+        font-size: 15px;
+      }
+
+      .export-panel p {
+        margin-top: 6px;
+        color: #bdcfe8;
+        font-size: 10px;
+      }
+
+      .export-panel .primary-button {
+        flex-shrink: 0;
+        color: #164077;
+        background: white;
+        box-shadow: none;
+      }
+
+      @media (max-width: 1100px) {
+        .report-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .reports-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .reports-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .export-panel {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">
+            <i class="fa-solid fa-database"></i>
+          </span>
+
+          <span>
+            <strong>Replicon</strong>
+            <small>Control Center</small>
+          </span>
+        </a>
+
+        <nav class="main-nav">
+          <p class="nav-label">Espace de travail</p>
+
+          <a class="nav-link" href="index.html">
+            <i class="fa-solid fa-grid-2"></i>
+            Tableau de bord
+          </a>
+
+          <a class="nav-link" href="sites.html">
+            <i class="fa-solid fa-earth-americas"></i>
+            Sites
+          </a>
+
+          <a class="nav-link" href="monitoring.html">
+            <i class="fa-solid fa-chart-line"></i>
+            Supervision
+          </a>
+
+          <a class="nav-link" href="deployments.html">
+            <i class="fa-solid fa-rocket"></i>
+            Déploiements
+          </a>
+
+          <p class="nav-label">Administration</p>
+
+          <a class="nav-link" href="alerts.html">
+            <i class="fa-solid fa-bell"></i>
+            Alertes
+            <span class="nav-count">3</span>
+          </a>
+
+          <a class="nav-link active" href="reports.html">
+            <i class="fa-solid fa-file-lines"></i>
+            Rapports
+          </a>
+
+          <a class="nav-link" href="settings.html">
+            <i class="fa-solid fa-sliders"></i>
+            Paramètres
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="support-card">
+            <span class="support-icon">
+              <i class="fa-regular fa-circle-question"></i>
+            </span>
+
+            <p>Besoin d'assistance ?</p>
+            <a href="#">Consulter le runbook</a>
+          </div>
+
+          <div class="user-card">
+            <div class="avatar">HA</div>
+
+            <div>
+              <strong>Houda Abdessamad</strong>
+              <span>Administratrice DBA</span>
+            </div>
+
+            <button class="icon-button">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="menu-button">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <div class="breadcrumb">
+            <span>DBLINK</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <strong>Rapports</strong>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="icon-button notification-button">
+              <i class="fa-regular fa-bell"></i>
+              <span></span>
+            </button>
+
+            <button class="icon-button">
+              <i class="fa-regular fa-circle-question"></i>
+            </button>
+
+            <button class="profile-button">
+              <span class="avatar">HA</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="reports-header">
+          <div>
+            <p class="eyebrow">
+              <span></span>
+              Analyse et traçabilité
+            </p>
+
+            <h1>Rapports</h1>
+
+            <p>
+              Générez des rapports de suivi pour analyser la réplication
+              transactionnelle des 17 sites.
+            </p>
+          </div>
+
+          <button class="primary-button">
+            <i class="fa-solid fa-plus"></i>
+            Créer un rapport
+          </button>
+        </section>
+
+        <section class="report-grid">
+          <article class="report-card">
+            <span class="report-icon">
+              <i class="fa-solid fa-chart-pie"></i>
+            </span>
+
+            <h2>État global des sites</h2>
+
+            <p>
+              Vue synthétique des 17 sites, agents actifs, incidents ouverts
+              et statut de chaque FactoryDW.
+            </p>
+
+            <div class="report-card-footer">
+              <small>Format PDF · 2 pages</small>
+
+              <button class="generate-button">
+                <i class="fa-solid fa-file-pdf"></i>
+                Générer
+              </button>
+            </div>
+          </article>
+
+          <article class="report-card">
+            <span class="report-icon">
+              <i class="fa-solid fa-chart-line"></i>
+            </span>
+
+            <h2>Latence et transactions</h2>
+
+            <p>
+              Analyse de la latence, des commandes distribuées et des files
+              d'attente par site.
+            </p>
+
+            <div class="report-card-footer">
+              <small>Format XLSX · 17 lignes</small>
+
+              <button class="generate-button">
+                <i class="fa-solid fa-file-excel"></i>
+                Générer
+              </button>
+            </div>
+          </article>
+
+          <article class="report-card">
+            <span class="report-icon">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </span>
+
+            <h2>Incidents et alertes</h2>
+
+            <p>
+              Historique des erreurs, mesures correctives et alertes détectées
+              durant la période sélectionnée.
+            </p>
+
+            <div class="report-card-footer">
+              <small>Format PDF · 4 pages</small>
+
+              <button class="generate-button">
+                <i class="fa-solid fa-file-pdf"></i>
+                Générer
+              </button>
+            </div>
+          </article>
+        </section>
+
+        <section class="reports-layout">
+          <article class="panel report-history">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">Documents disponibles</p>
+                <h2>Historique des rapports</h2>
+              </div>
+
+              <button class="select-button">
+                Septembre 2026
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rapport</th>
+                    <th>Période</th>
+                    <th>Créé par</th>
+                    <th>Créé le</th>
+                    <th>Télécharger</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="report-file">
+                        <span class="file-icon">
+                          <i class="fa-solid fa-file-pdf"></i>
+                        </span>
+
+                        <div>
+                          <strong>État global des sites</strong>
+                          <small>Rapport_Replication_Global.pdf</small>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td><strong>01–17 Sept. 2026</strong></td>
+                    <td><strong>Houda Abdessamad</strong></td>
+                    <td><strong>Aujourd'hui, 10:15</strong></td>
+
+                    <td>
+                      <button class="download-report">
+                        <i class="fa-solid fa-download"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="report-file">
+                        <span class="file-icon">
+                          <i class="fa-solid fa-file-excel"></i>
+                        </span>
+
+                        <div>
+                          <strong>Latence et transactions</strong>
+                          <small>Analyse_Latence_Septembre.xlsx</small>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td><strong>01–14 Sept. 2026</strong></td>
+                    <td><strong>Houda Abdessamad</strong></td>
+                    <td><strong>14 Sept. 2026</strong></td>
+
+                    <td>
+                      <button class="download-report">
+                        <i class="fa-solid fa-download"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="report-file">
+                        <span class="file-icon">
+                          <i class="fa-solid fa-file-pdf"></i>
+                        </span>
+
+                        <div>
+                          <strong>Incidents et alertes</strong>
+                          <small>Historique_Incidents_Aout.pdf</small>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td><strong>01–31 Août 2026</strong></td>
+                    <td><strong>Équipe DBA</strong></td>
+                    <td><strong>01 Sept. 2026</strong></td>
+
+                    <td>
+                      <button class="download-report">
+                        <i class="fa-solid fa-download"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div class="report-file">
+                        <span class="file-icon">
+                          <i class="fa-solid fa-file-pdf"></i>
+                        </span>
+
+                        <div>
+                          <strong>Recette du site CA01</strong>
+                          <small>PV_Validation_CA01.pdf</small>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td><strong>09 Sept. 2026</strong></td>
+                    <td><strong>Houda Abdessamad</strong></td>
+                    <td><strong>09 Sept. 2026</strong></td>
+
+                    <td>
+                      <button class="download-report">
+                        <i class="fa-solid fa-download"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <aside class="panel schedule-panel">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">Automatisation</p>
+                <h2>Rapports planifiés</h2>
+              </div>
+
+              <button class="icon-button">
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+            </div>
+
+            <div class="schedule-main">
+              <article class="schedule-item">
+                <i class="fa-solid fa-calendar-day"></i>
+
+                <div>
+                  <strong>Synthèse quotidienne</strong>
+                  <small>Tous les jours à 08:00</small>
+                </div>
+
+                <button class="schedule-toggle">
+                  <span></span>
+                </button>
+              </article>
+
+              <article class="schedule-item">
+                <i class="fa-solid fa-calendar-week"></i>
+
+                <div>
+                  <strong>Analyse hebdomadaire</strong>
+                  <small>Chaque lundi à 09:00</small>
+                </div>
+
+                <button class="schedule-toggle">
+                  <span></span>
+                </button>
+              </article>
+
+              <article class="schedule-item">
+                <i class="fa-solid fa-calendar-days"></i>
+
+                <div>
+                  <strong>Rapport mensuel</strong>
+                  <small>Le 1er jour du mois à 10:00</small>
+                </div>
+
+                <button class="schedule-toggle">
+                  <span></span>
+                </button>
+              </article>
+            </div>
+
+            <div class="schedule-footer">
+              <button class="secondary-button">
+                <i class="fa-solid fa-plus"></i>
+                Planifier un rapport
+              </button>
+            </div>
+          </aside>
+        </section>
+
+        <section class="export-panel">
+          <div class="export-panel-left">
+            <i class="fa-solid fa-file-export"></i>
+
+            <div>
+              <p class="section-kicker">Export rapide</p>
+              <h2>Préparez votre rapport de soutenance</h2>
+              <p>
+                Générez une synthèse claire des résultats de réplication pour
+                l'ajouter à votre présentation.
+              </p>
+            </div>
+          </div>
+
+          <button class="primary-button">
+            Générer la synthèse
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </section>
+      </main>
+    </div>
+
+     <script src="reports.js?v=2"></script>
+      <script src="reports-live.js"></script>
+      <style>
+  .report-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-grid .report-card {
+    max-width: 520px;
+  }
+
+  .reports-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.5fr);
+  }
+
+  .report-history,
+  .schedule-panel {
+    padding: 24px;
+  }
+</style>
+  </body>
+</html>

@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Déploiement guidé de la réplication SQL Server."
+    />
+    <title>Déploiements | Replicon</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+      .deploy-header {
+        padding: 34px 0 25px;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .deploy-header h1 {
+        margin-top: 7px;
+        color: var(--navy);
+        font-family: "Playfair Display", serif;
+        font-size: 37px;
+        letter-spacing: -1.5px;
+      }
+
+      .deploy-header p:last-child {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .deploy-header .primary-button {
+        flex-shrink: 0;
+      }
+
+      .deploy-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.75fr);
+        gap: 18px;
+      }
+
+      .deploy-card {
+        overflow: hidden;
+      }
+
+      .deployment-top {
+        padding: 19px 21px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .deployment-top h2 {
+        margin-top: 5px;
+        color: var(--navy);
+        font-size: 17px;
+      }
+
+      .new-site-badge {
+        padding: 6px 10px;
+        color: #b27b2b;
+        border-radius: 30px;
+        background: var(--orange-light);
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .deploy-steps {
+        padding: 10px 21px 20px;
+      }
+
+      .deploy-step {
+        min-height: 105px;
+        padding: 17px 0;
+        position: relative;
+        display: flex;
+        gap: 14px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .deploy-step:last-child {
+        border-bottom: 0;
+      }
+
+      .step-number {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: grid;
+        place-items: center;
+        color: #7e8da3;
+        border: 1px solid #dce4ef;
+        border-radius: 50%;
+        background: white;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .deploy-step.completed .step-number {
+        color: white;
+        border-color: var(--green);
+        background: var(--green);
+      }
+
+      .deploy-step.current .step-number {
+        color: white;
+        border-color: var(--blue);
+        background: var(--blue);
+        box-shadow: 0 0 0 5px rgba(54, 140, 255, 0.12);
+      }
+
+      .step-content {
+        flex: 1;
+      }
+
+      .step-content h3 {
+        color: #35445c;
+        font-size: 12px;
+      }
+
+      .step-content p {
+        margin-top: 5px;
+        color: #8995a8;
+        font-size: 10px;
+        line-height: 1.55;
+      }
+
+      .step-content small {
+        margin-top: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--green);
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .step-content small.pending {
+        color: #a8772c;
+      }
+
+      .step-action {
+        align-self: center;
+        height: 31px;
+        padding: 0 11px;
+        color: var(--blue);
+        border-radius: 8px;
+        background: var(--blue-light);
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .step-action:hover {
+        color: white;
+        background: var(--blue);
+      }
+
+      .progress-panel {
+        overflow: hidden;
+      }
+
+      .progress-main {
+        padding: 22px;
+        text-align: center;
+      }
+
+      .progress-circle {
+        width: 138px;
+        height: 138px;
+        margin: 5px auto 17px;
+        padding: 10px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: conic-gradient(var(--blue) 0deg 216deg, #e9eef5 216deg 360deg);
+      }
+
+      .progress-circle > div {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-content: center;
+        border-radius: 50%;
+        background: white;
+      }
+
+      .progress-circle strong {
+        color: var(--navy);
+        font-size: 29px;
+        letter-spacing: -1px;
+      }
+
+      .progress-circle span {
+        color: #8491a4;
+        font-size: 9px;
+      }
+
+      .progress-main h2 {
+        color: var(--navy);
+        font-size: 15px;
+      }
+
+      .progress-main p {
+        margin-top: 6px;
+        color: #8c98aa;
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .progress-info {
+        padding: 15px 21px;
+        border-top: 1px solid var(--line);
+        background: #fbfcfe;
+      }
+
+      .progress-info-row {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .progress-info-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .progress-info-row span {
+        color: #8e9aac;
+        font-size: 10px;
+      }
+
+      .progress-info-row strong {
+        color: #45546d;
+        font-size: 10px;
+      }
+
+      .prerequisites-panel {
+        margin-top: 18px;
+        overflow: hidden;
+      }
+
+      .prerequisite-grid {
+        padding: 5px 20px 20px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 11px;
+      }
+
+      .prerequisite {
+        padding: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: #fcfdff;
+      }
+
+      .prerequisite i {
+        width: 29px;
+        height: 29px;
+        flex: 0 0 29px;
+        display: grid;
+        place-items: center;
+        color: var(--green);
+        border-radius: 8px;
+        background: var(--green-light);
+        font-size: 11px;
+      }
+
+      .prerequisite.warning i {
+        color: var(--orange);
+        background: var(--orange-light);
+      }
+
+      .prerequisite strong,
+      .prerequisite small {
+        display: block;
+      }
+
+      .prerequisite strong {
+        color: #43526a;
+        font-size: 10px;
+      }
+
+      .prerequisite small {
+        margin-top: 3px;
+        color: #909cae;
+        font-size: 9px;
+      }
+
+      .recent-deployments {
+        margin-top: 18px;
+        overflow: hidden;
+      }
+
+      .recent-deployments td:first-child {
+        min-width: 170px;
+      }
+
+      .deployment-site {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .deployment-site span {
+        width: 29px;
+        height: 29px;
+        display: grid;
+        place-items: center;
+        color: var(--blue);
+        border-radius: 8px;
+        background: var(--blue-light);
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .deployment-site strong,
+      .deployment-site small {
+        display: block;
+      }
+
+      .deployment-site strong {
+        color: #41516a;
+        font-size: 10px;
+      }
+
+      .deployment-site small {
+        margin-top: 3px;
+        color: #99a5b7;
+        font-size: 9px;
+      }
+
+      @media (max-width: 1050px) {
+        .deploy-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .deploy-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .prerequisite-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">
+            <i class="fa-solid fa-database"></i>
+          </span>
+
+          <span>
+            <strong>Replicon</strong>
+            <small>Control Center</small>
+          </span>
+        </a>
+
+        <nav class="main-nav">
+          <p class="nav-label">Espace de travail</p>
+
+          <a class="nav-link" href="index.html">
+            <i class="fa-solid fa-grid-2"></i>
+            Tableau de bord
+          </a>
+
+          <a class="nav-link" href="sites.html">
+            <i class="fa-solid fa-earth-americas"></i>
+            Sites
+          </a>
+
+          <a class="nav-link" href="monitoring.html">
+            <i class="fa-solid fa-chart-line"></i>
+            Supervision
+          </a>
+
+          <a class="nav-link active" href="deployments.html">
+            <i class="fa-solid fa-rocket"></i>
+            Déploiements
+          </a>
+
+          <p class="nav-label">Administration</p>
+
+          <a class="nav-link" href="alerts.html">
+            <i class="fa-solid fa-bell"></i>
+            Alertes
+            <span class="nav-count">3</span>
+          </a>
+
+          <a class="nav-link" href="reports.html">
+            <i class="fa-solid fa-file-lines"></i>
+            Rapports
+          </a>
+
+          <a class="nav-link" href="settings.htmls">
+            <i class="fa-solid fa-sliders"></i>
+            Paramètres
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="support-card">
+            <span class="support-icon">
+              <i class="fa-regular fa-circle-question"></i>
+            </span>
+
+            <p>Besoin d'assistance ?</p>
+            <a href="#">Consulter le runbook</a>
+          </div>
+
+          <div class="user-card">
+            <div class="avatar">HA</div>
+
+            <div>
+              <strong>Houda Abdessamad</strong>
+              <span>Administratrice DBA</span>
+            </div>
+
+            <button class="icon-button">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="menu-button">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <div class="breadcrumb">
+            <span>DBLINK</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <strong>Déploiements</strong>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="icon-button notification-button">
+              <i class="fa-regular fa-bell"></i>
+              <span></span>
+            </button>
+
+            <button class="icon-button">
+              <i class="fa-regular fa-circle-question"></i>
+            </button>
+
+            <button class="profile-button">
+              <span class="avatar">HA</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="deploy-header">
+          <div>
+            <p class="eyebrow">
+              <span></span>
+              Procédure standardisée
+            </p>
+
+            <h1>Déploiements</h1>
+
+            <p>
+              Configurez et validez la réplication transactionnelle d'un
+              nouveau site.
+            </p>
+          </div>
+
+          <button class="primary-button">
+            <i class="fa-solid fa-plus"></i>
+            Nouveau déploiement
+          </button>
+        </section>
+
+        <section class="deploy-layout">
+          <article class="panel deploy-card">
+            <div class="deployment-top">
+              <div>
+                <p class="section-kicker">Déploiement en cours</p>
+                <h2>Site JP01 — Japon</h2>
+              </div>
+
+              <span class="new-site-badge">
+                <i class="fa-solid fa-clock"></i>
+                En préparation
+              </span>
+            </div>
+
+            <div class="deploy-steps">
+              <article class="deploy-step completed">
+                <span class="step-number">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+
+                <div class="step-content">
+                  <h3>Pré-check technique</h3>
+                  <p>
+                    Services SQL Server Agent, connectivité réseau, espace disque
+                    et clés primaires vérifiés.
+                  </p>
+
+                  <small>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Étape validée
+                  </small>
+                </div>
+
+                <button class="step-action">Voir le rapport</button>
+              </article>
+
+              <article class="deploy-step completed">
+                <span class="step-number">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+
+                <div class="step-content">
+                  <h3>Configuration du Distributor</h3>
+                  <p>
+                    Base distribution et dossier snapshot configurés sur
+                    JP01MESSQL01.
+                  </p>
+
+                  <small>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Étape validée
+                  </small>
+                </div>
+
+                <button class="step-action">Détails</button>
+              </article>
+
+              <article class="deploy-step current">
+                <span class="step-number">03</span>
+
+                <div class="step-content">
+                  <h3>Création de la publication</h3>
+                  <p>
+                    Sélectionner les articles utiles au reporting et configurer
+                    les propriétés de la publication transactionnelle.
+                  </p>
+
+                  <small class="pending">
+                    <i class="fa-solid fa-spinner"></i>
+                    Étape en cours
+                  </small>
+                </div>
+
+                <button class="step-action">Continuer</button>
+              </article>
+
+              <article class="deploy-step">
+                <span class="step-number">04</span>
+
+                <div class="step-content">
+                  <h3>Snapshot et abonnement push</h3>
+                  <p>
+                    Initialiser FactoryDW sur JP01RPT01, puis créer
+                    l'abonnement push.
+                  </p>
+                </div>
+
+                <button class="step-action">À venir</button>
+              </article>
+
+              <article class="deploy-step">
+                <span class="step-number">05</span>
+
+                <div class="step-content">
+                  <h3>Validation et supervision</h3>
+                  <p>
+                    Tester INSERT, UPDATE et DELETE, puis activer le monitoring
+                    des agents.
+                  </p>
+                </div>
+
+                <button class="step-action">À venir</button>
+              </article>
+            </div>
+          </article>
+
+          <aside class="panel progress-panel">
+            <div class="panel-header">
+              <div>
+                <p class="section-kicker">Avancement</p>
+                <h2>JP01 — Japon</h2>
+              </div>
+
+              <button class="icon-button">
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+            </div>
+
+            <div class="progress-main">
+              <div class="progress-circle">
+                <div>
+                  <strong>60%</strong>
+                  <span>terminé</span>
+                </div>
+              </div>
+
+              <h2>Déploiement en cours</h2>
+
+              <p>
+                Les prérequis et la distribution sont validés. La publication
+                transactionnelle est en cours de configuration.
+              </p>
+            </div>
+
+            <div class="progress-info">
+              <div class="progress-info-row">
+                <span>Publisher</span>
+                <strong>JP01MESSQL01</strong>
+              </div>
+
+              <div class="progress-info-row">
+                <span>Subscriber</span>
+                <strong>JP01RPT01</strong>
+              </div>
+
+              <div class="progress-info-row">
+                <span>Base cible</span>
+                <strong>FactoryDW</strong>
+              </div>
+
+              <div class="progress-info-row">
+                <span>Responsable</span>
+                <strong>Houda Abdessamad</strong>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section class="panel prerequisites-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Contrôles préalables</p>
+              <h2>Résultat du pré-check JP01</h2>
+            </div>
+
+            <button class="text-button">
+              Exporter le rapport
+              <i class="fa-solid fa-download"></i>
+            </button>
+          </div>
+
+          <div class="prerequisite-grid">
+            <article class="prerequisite">
+              <i class="fa-solid fa-circle-check"></i>
+
+              <div>
+                <strong>SQL Server Agent</strong>
+                <small>Service démarré automatiquement</small>
+              </div>
+            </article>
+
+            <article class="prerequisite">
+              <i class="fa-solid fa-circle-check"></i>
+
+              <div>
+                <strong>Connectivité TCP</strong>
+                <small>Port SQL 1433 accessible</small>
+              </div>
+            </article>
+
+            <article class="prerequisite">
+              <i class="fa-solid fa-circle-check"></i>
+
+              <div>
+                <strong>Dossier Snapshot</strong>
+                <small>Droits des agents validés</small>
+              </div>
+            </article>
+
+            <article class="prerequisite">
+              <i class="fa-solid fa-circle-check"></i>
+
+              <div>
+                <strong>Clés primaires</strong>
+                <small>Articles éligibles à la réplication</small>
+              </div>
+            </article>
+
+            <article class="prerequisite">
+              <i class="fa-solid fa-circle-check"></i>
+
+              <div>
+                <strong>Espace disque</strong>
+                <small>Volumes data et log suffisants</small>
+              </div>
+            </article>
+
+            <article class="prerequisite warning">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+
+              <div>
+                <strong>Compte Distribution Agent</strong>
+                <small>À confirmer avant l'initialisation</small>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel recent-deployments">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Historique</p>
+              <h2>Derniers déploiements</h2>
+            </div>
+
+            <button class="text-button">
+              Voir tout l'historique
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Site</th>
+                  <th>Date de lancement</th>
+                  <th>Responsable</th>
+                  <th>Durée</th>
+                  <th>Résultat</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="deployment-site">
+                      <span>CA</span>
+
+                      <div>
+                        <strong>CA01 — Canada</strong>
+                        <small>FactoryDW initialisée</small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td><strong>09 Sept. 2026</strong></td>
+                  <td><strong>Houda Abdessamad</strong></td>
+                  <td><strong>2 h 18 min.</strong></td>
+
+                  <td>
+                    <span class="status-badge healthy">
+                      <i></i>
+                      Conforme
+                    </span>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="deployment-site">
+                      <span>SE</span>
+
+                      <div>
+                        <strong>SE01 — Suède</strong>
+                        <small>Subscription push créée</small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td><strong>04 Sept. 2026</strong></td>
+                  <td><strong>Houda Abdessamad</strong></td>
+                  <td><strong>2 h 46 min.</strong></td>
+
+                  <td>
+                    <span class="status-badge healthy">
+                      <i></i>
+                      Conforme
+                    </span>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="deployment-site">
+                      <span>MX</span>
+
+                      <div>
+                        <strong>MX01 — Mexique</strong>
+                        <small>Validation à compléter</small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td><strong>28 Août 2026</strong></td>
+                  <td><strong>Houda Abdessamad</strong></td>
+                  <td><strong>3 h 12 min.</strong></td>
+
+                  <td>
+                    <span class="status-badge warning">
+                      <i></i>
+                      À surveiller
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+    <style>
+  .deploy-layout {
+    display: block;
+  }
+
+  .deploy-layout,
+  .prerequisites-panel,
+  .recent-deployments {
+    padding: 24px;
+    margin-top: 18px;
+    border: 1px solid #e3eaf2;
+    border-radius: 16px;
+    background: white;
+  }
+  .nav-count {
+  display: none !important;
+}
+</style>
+    <script src="script.js?v=2"></script>
+<script src="deployments-live.js"></script>
+</body>
+</html>
